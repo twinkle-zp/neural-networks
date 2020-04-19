@@ -65,5 +65,42 @@ def changedate():
         line.append(str(daynum))
         data_write.writerow(line)
 
+#取每个用户的最后阅读的八条新闻为测试集，其余为训练集
+def devidesets():
+    data = csv.reader(open('./data/2data.csv', encoding='ANSI'))
+    train_write = csv.writer(open('./data/3train.csv', 'a', newline='', encoding='ANSI'), dialect='excel')
+    test_write = csv.writer(open('./data/4test.csv', 'a', newline='', encoding='ANSI'), dialect='excel')
+    user_lenth = 40
+    test_lenth = 8   #设定每个用户测试的数量
+    count = 0
+    index = 0
+    for line in data:
+        if index == 0:
+            train_write.writerow(line)  # 存表头
+            test_write.writerow(line)  # 存表头
+            index = 1
+            continue
+        if count < test_lenth:
+            test_write.writerow(line)
+            count += 1
+        elif count < user_lenth:
+            train_write.writerow(line)
+            count += 1
+            if count == user_lenth:
+                count = 0
+
+
+
+devidesets()
+
+
+
+
+
+
+
+
+
+
 
 
