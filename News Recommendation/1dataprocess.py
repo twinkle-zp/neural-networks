@@ -1,7 +1,7 @@
 import csv
 import re
 import time
-
+import pandas as pd
 #从原始数据中提取出阅读新闻超过40篇的用户阅读的前40条新闻
 def extractdata():
     caixin = csv.reader(open('./data/caixin.csv',encoding='ANSI'))
@@ -65,7 +65,7 @@ def changedate():
         line.append(str(daynum))
         data_write.writerow(line)
 
-#取每个用户的最后阅读的八条新闻为测试集，其余为训练集
+#取每个用户的最后阅读的八条新闻为测试集，其余32条为训练集
 def devidesets():
     data = csv.reader(open('./data/2data.csv', encoding='ANSI'))
     train_write = csv.writer(open('./data/3train.csv', 'a', newline='', encoding='ANSI'), dialect='excel')
@@ -91,7 +91,54 @@ def devidesets():
 
 
 
-devidesets()
+#手动取train和test文件中前100名用户的数据 1+100*32=3201   1+100*8=801
+
+
+
+#取出训练集和测试集中所有新闻信息并去重
+def extractnews():
+    td = csv.reader(open('./data/7data_100user.csv', encoding='ANSI'))
+    tdl = list(td)    #将数据转为list
+    td2 = csv.reader(open('./data/7data_100user.csv', encoding='ANSI'))
+    tdl2 = list(td2)
+    delete_list = []
+    print(len(tdl))
+
+    #从5train_100user.csv中找重复
+    for i in range(1,len(tdl)-1):
+        for j in range(i+1,len(tdl)):
+            if tdl[i][1]==tdl[j][1]:         #根据新闻id判断是否有重复
+                delete_list.append(j)     #此处暂存要删除的下标
+
+
+    delete_list = list(set(delete_list))   #利用集合去重复
+    print(len(delete_list))
+
+    count=0            #删除会改变下标，利用count记录删除的个数
+    for i in delete_list:
+        del tdl[i-count]
+        count += 1
+
+    # 计算每条新闻点击数
+    count=0
+    for i in tdl:
+        for j in tdl2:
+            if i[1]==j[1]:
+                count += 1
+        i.append(str(count))
+        count=0
+
+    count=0
+    for i in tdl:
+        count+=int(i[7])
+    print(count)
+    print(len(tdl))
+
+extractnews()
+
+
+
+
 
 
 
